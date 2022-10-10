@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Demo - Intersecção de Retângulos</title>
+        <style>
+            body {
+                background-color: black;
+                color: white;
+            }
+        
+            h2, p {
+                text-align:center;
+            }
+            
+            #demo {
+                position:absolute;
+                left:50%;
+            }
+            
+            #rect_rect_canvas_container {
+                width: 500px;
+                height: 500px;
+                border: 1px solid orange;
+                position:relative;
+                left:-50%;
+            }
+                        
+            th {
+                color: orange;
+            }
+            
+        </style>
+        <script src="rec_intersections.js">//Importa para usar a função intersection(ret1,ret2)</script>
+        <script>
+            function canvasApp() 
+            {
+                var myCanvas = document.getElementById("rect_rect");
+                var ctx = myCanvas.getContext("2d");
+                                
+                // Objeto que contêm os tamanhos e coordenadas absolutas do canvas
+                var myCanvas_coords = myCanvas.getBoundingClientRect();
+                
+                // Coordenadas iniciais (xi,yi) absolutas do canvas; Relativas são (0,0)
+                var absolute_xi = myCanvas_coords.x;
+                var absolute_yi = myCanvas_coords.y;
+                                
+                // Constantes que aumentam ou descontam 5% de valores do programa
+                const increase_5Percent = 1.05;
+                const decrease_5Percent = 0.95;
+                
+                // Objeto retangulo1
+                var ret1 = {
+                    x:200, y:200,
+                    width:150, height:150,
+                
+                };
+                
+                // Objeto retangulo2
+                var ret2 = {
+                    x:250, y:30,
+                    width:150, height:150,
+                };
+                
+                // Função que desenha os retângulos (e seus vértices) no Canvas
+                function draw()
+                {
+                    // Define as coordenadas dos vértices do retângulo 1 a partir de suas dimensões
+                    var ret1_vcenter = [ret1.x + ret1.width/2, ret1.y + ret1.height/2];
+                    var ret1_vleft = [ret1.x, ret1.y + ret1.height/2];
+                    var ret1_vright = [ret1.x + ret1.width, ret1.y + ret1.height/2];
+                    var ret1_vbottom = [ret1.x + ret1.width/2, ret1.y + ret1.height];
+                    var ret1_vtop = [ret1.x + ret1.width/2, ret1.y];
+                    
+                    // Define as coordenadas dos vértices do retângulo 2 a partir de suas dimensões
+                    var ret2_vcenter = [ret2.x + ret2.width/2, ret2.y + ret2.height/2];
+                    var ret2_vleft = [ret2.x, ret2.y + ret2.height/2];
+                    var ret2_vright = [ret2.x + ret2.width, ret2.y + ret2.height/2];
+                    var ret2_vbottom = [ret2.x + ret2.width/2, ret2.y + ret2.height];
+                    var ret2_vtop = [ret2.x + ret2.width/2, ret2.y];
+                     
+                    // Se há intersecção seta as cores para branco
+                    if (intersection(ret1, ret2)) {
+                        ctx.strokeStyle = "white";
+                        ctx.fillStyle = "white";
+                    }
+                    // Caso contrário, seta para laranja
+                    else {
+                        ctx.strokeStyle = "orange";
+                        ctx.fillStyle = "orange";
+                    }
+                    
+                    // Log x,y coordinates of the rectangles
+                    document.getElementById("logx_rec1").innerHTML = ret1_vcenter[0];
+                    document.getElementById("logy_rec1").innerHTML = ret1_vcenter[1];
+                    document.getElementById("logx_rec2").innerHTML = ret2_vcenter[0];
+                    document.getElementById("logy_rec2").innerHTML = ret2_vcenter[1];
+                    
+                    // Log the sizes of the rectangles
+                    document.getElementById("logw_rec1").innerHTML = ret1.width;
+                    document.getElementById("logh_rec1").innerHTML = ret1.height;
+                    document.getElementById("logw_rec2").innerHTML = ret2.width;
+                    document.getElementById("logh_rec2").innerHTML = ret2.height;
+
+                    // Desenha o retângulo 1
+                    ctx.beginPath();
+                    ctx.strokeRect(ret1.x, ret1.y, ret1.width, ret1.height);
+                    
+                    // Desenha os vértices (pontos) do retângulo 1
+                    ctx.arc(ret1_vcenter[0], ret1_vcenter[1], 5, 0, 2 * Math.PI);
+                    ctx.arc(ret1_vleft[0], ret1_vleft[1], 5, 0, 2 * Math.PI);
+                    ctx.moveTo(ret1_vright[0], ret1_vright[1]);
+                    ctx.arc(ret1_vright[0], ret1_vright[1], 5, 0, 2 * Math.PI);
+                    ctx.moveTo(ret1_vtop[0], ret1_vtop[1]);
+                    ctx.arc(ret1_vtop[0], ret1_vtop[1], 5, 0, 2 * Math.PI);
+                    ctx.moveTo(ret1_vbottom[0], ret1_vbottom[1]);
+                    ctx.arc(ret1_vbottom[0], ret1_vbottom[1], 5, 0, 2 * Math.PI);                  
+                    ctx.fill();
+                    
+                    // encerra o caminho do retângulo 1
+                    ctx.closePath();
+                    
+                    // Desenha o retângulo 2
+                    ctx.beginPath();
+                    ctx.strokeRect(ret2.x, ret2.y, ret2.width, ret2.height);
+                    
+                    // Desenha os vértices (pontos) do retângulo 2
+                    ctx.arc(ret2_vcenter[0], ret2_vcenter[1], 5, 0, 2 * Math.PI);
+                    ctx.arc(ret2_vleft[0], ret2_vleft[1], 5, 0, 2 * Math.PI);
+                    ctx.moveTo(ret2_vright[0], ret2_vright[1]);
+                    ctx.arc( ret2_vright[0], ret2_vright[1], 5, 0, 2 * Math.PI);
+                    ctx.moveTo(ret2_vtop[0], ret2_vtop[1]);
+                    ctx.arc(ret2_vtop[0], ret2_vtop[1], 5, 0, 2 * Math.PI);
+                    ctx.moveTo(ret2_vbottom[0], ret2_vbottom[1]);
+                    ctx.arc(ret2_vbottom[0], ret2_vbottom[1], 5, 0, 2 * Math.PI);     
+                    ctx.fill();
+                    
+                    // encerra o caminho do retângulo 2
+                    ctx.closePath();
+                    
+                    // Events that update the drawing
+                    myCanvas.onmousedown = function(e) 
+                    {
+                        // translate the rectangles
+                        
+                        // Check if the button pressed is +/- the center of the first rec => Drag it
+                        if (e.x >= (ret1_vcenter[0] + absolute_xi) * decrease_5Percent && 
+                        e.x <= (ret1_vcenter[0] + absolute_xi) * increase_5Percent &&  
+                        e.y >= (ret1_vcenter[1] + absolute_yi) * decrease_5Percent && 
+                        e.y <= (ret1_vcenter[1] + absolute_yi) * increase_5Percent) {
+                            myCanvas.onmousemove = function (e) {
+                                ctx.clearRect(0, 0, 500, 500);
+                                ret1.x = e.layerX - ret1.width/2;
+                                ret1.y = e.layerY - ret1.height/2;
+                                draw();
+                            };
+                        }
+                        
+                        // Check if the button pressed is +/- the center of the second rec => Drag it
+                        else if (e.x >= (ret2_vcenter[0] + absolute_xi) * decrease_5Percent && 
+                        e.x <= (ret2_vcenter[0] + absolute_xi) * increase_5Percent &&  
+                        e.y >= (ret2_vcenter[1] + absolute_yi) * decrease_5Percent && 
+                        e.y <= (ret2_vcenter[1] + absolute_yi) * increase_5Percent) {
+                            myCanvas.onmousemove = function (e) {
+                                ctx.clearRect(0, 0, 500, 500);
+                                ret2.x = e.layerX - ret2.width/2;
+                                ret2.y = e.layerY - ret2.height/2;
+                                draw();
+                            };
+                        }
+                        
+                        // Scaling the rectangles
+                        
+                        // First rectangle 
+                        // by Pressing +/- the left vertice of the rec 1 => Scaling it
+                        else if (e.x >= (ret1_vleft[0] + absolute_xi) * decrease_5Percent && 
+                        e.x <= (ret1_vleft[0] + absolute_xi) * increase_5Percent &&  
+                        e.y >= (ret1_vleft[1] + absolute_yi) * decrease_5Percent && 
+                        e.y <= (ret1_vleft[1] + absolute_yi) * increase_5Percent) {
+                            myCanvas.onmousemove = function (e) {
+                                ctx.clearRect(0, 0, 500, 500);
+                                var new_width = Math.abs(e.layerX - ret1_vcenter[0]);
+                                ret1.width = new_width;
+                                ret1.height = e.layerY;
+                                ret1.x = e.layerX;
+                                ret1.y = e.layerY - ret1.height/2;
+                                draw();
+                            };
+                        }
+                        
+                        // by Pressing +/- the right vertice of the rec 1 => Scaling it
+                        else if (e.x >= (ret1_vright[0] + absolute_xi) * decrease_5Percent && 
+                        e.x <= (ret1_vright[0] + absolute_xi) * increase_5Percent &&  
+                        e.y >= (ret1_vright[1] + absolute_yi) * decrease_5Percent && 
+                        e.y <= (ret1_vright[1] + absolute_yi) * increase_5Percent) {
+                            myCanvas.onmousemove = function (e) {
+                                ctx.clearRect(0, 0, 500, 500);
+                                var new_width = Math.abs(e.layerX - ret1_vcenter[0]);
+                                ret1.width = new_width;
+                                ret1.height = e.layerY;
+                                ret1.x = e.layerX - ret1.width;
+                                ret1.y = e.layerY - ret1.height/2;
+                                draw();
+                            };
+                        }
+                        
+                        // by Pressing +/- the bottom vertice of the rec 1 => Scaling it
+                        else if (e.x >= (ret1_vbottom[0] + absolute_xi) * decrease_5Percent && 
+                        e.x <= (ret1_vbottom[0] + absolute_xi) * increase_5Percent &&  
+                        e.y >= (ret1_vbottom[1] + absolute_yi) * decrease_5Percent && 
+                        e.y <= (ret1_vbottom[1] + absolute_yi) * increase_5Percent) {
+                            myCanvas.onmousemove = function (e) {
+                                ctx.clearRect(0, 0, 500, 500);
+                                var new_height = Math.abs(e.layerY - ret1_vcenter[1]);
+                                ret1.height = new_height;
+                                ret1.width = e.layerX;
+                                ret1.x = e.layerX - ret1.width/2;
+                                ret1.y = e.layerY - ret1.height;
+                                draw();
+                            };
+                        }                     
+                
+                        // by Pressing +/- the top vertice of the rec 1 => Scaling it
+                        else if (e.x >= (ret1_vtop[0] + absolute_xi) * decrease_5Percent && 
+                        e.x <= (ret1_vtop[0] + absolute_xi) * increase_5Percent &&  
+                        e.y >= (ret1_vtop[1] + absolute_yi) * decrease_5Percent && 
+                        e.y <= (ret1_vtop[1] + absolute_yi) * increase_5Percent) {
+                            myCanvas.onmousemove = function (e) {
+                                ctx.clearRect(0, 0, 500, 500);
+                                var new_height = Math.abs(e.layerY - ret1_vcenter[1]);
+                                ret1.height = new_height;
+                                ret1.width = e.layerX;
+                                ret1.x = e.layerX - ret1.width/2;
+                                ret1.y = e.layerY;
+                                draw();
+                            };
+                        }
+                        
+                        // Second one 
+                        // by Pressing +/- the left vertice of the rec 2 => Scaling it
+                        else if (e.x >= (ret2_vleft[0] + absolute_xi) * decrease_5Percent && 
+                        e.x <= (ret2_vleft[0] + absolute_xi) * increase_5Percent &&  
+                        e.y >= (ret2_vleft[1] + absolute_yi) * decrease_5Percent && 
+                        e.y <= (ret2_vleft[1] + absolute_yi) * increase_5Percent) {
+                            myCanvas.onmousemove = function (e) {
+                                ctx.clearRect(0, 0, 500, 500);
+                                var new_width = Math.abs(e.layerX - ret2_vcenter[0]);
+                                ret2.width = new_width;
+                                ret2.height = e.layerY;
+                                ret2.x = e.layerX;
+                                ret2.y = e.layerY - ret2.height/2;
+                                draw();
+                            };
+                        }
+                        
+                        // by Pressing +/- the right vertice of the rec 2 => Scaling it
+                        else if (e.x >= (ret2_vright[0] + absolute_xi) * decrease_5Percent && 
+                        e.x <= (ret2_vright[0] + absolute_xi) * increase_5Percent &&  
+                        e.y >= (ret2_vright[1] + absolute_yi) * decrease_5Percent && 
+                        e.y <= (ret2_vright[1] + absolute_yi) * increase_5Percent) {
+                            myCanvas.onmousemove = function (e) {
+                                ctx.clearRect(0, 0, 500, 500);
+                                var new_width = Math.abs(e.layerX - ret2_vcenter[0]);
+                                ret2.width = new_width;
+                                ret2.height = e.layerY;
+                                ret2.x = e.layerX - ret2.width;
+                                ret2.y = e.layerY - ret2.height/2;
+                                draw();
+                            };
+                        }
+                        
+                        // by Pressing +/- the bottom vertice of the rec 2 => Scaling it
+                        else if (e.x >= (ret2_vbottom[0] + absolute_xi) * decrease_5Percent && 
+                        e.x <= (ret2_vbottom[0] + absolute_xi) * increase_5Percent &&  
+                        e.y >= (ret2_vbottom[1] + absolute_yi) * decrease_5Percent && 
+                        e.y <= (ret2_vbottom[1] + absolute_yi) * increase_5Percent) {
+                            myCanvas.onmousemove = function (e) {
+                                ctx.clearRect(0, 0, 500, 500);
+                                var new_height = Math.abs(e.layerY - ret2_vcenter[1]);
+                                ret2.height = new_height;
+                                ret2.width = e.layerX;
+                                ret2.x = e.layerX - ret2.width/2;
+                                ret2.y = e.layerY - ret2.height;
+                                draw();
+                            };
+                        }                      
+                
+                        // by Pressing +/- the top vertice of the rec 2 => Scaling it
+                        else if (e.x >= (ret2_vtop[0] + absolute_xi) * decrease_5Percent && 
+                        e.x <= (ret2_vtop[0] + absolute_xi) * increase_5Percent &&  
+                        e.y >= (ret2_vtop[1] + absolute_yi) * decrease_5Percent && 
+                        e.y <= (ret2_vtop[1] + absolute_yi) * increase_5Percent) {
+                            myCanvas.onmousemove = function (e) {
+                                ctx.clearRect(0, 0, 500, 500);
+                                var new_height = Math.abs(e.layerY - ret2_vcenter[1]);
+                                ret2.height = new_height;
+                                ret2.width = e.layerX;
+                                ret2.x = e.layerX - ret2.width/2;
+                                ret2.y = e.layerY;
+                                draw();
+                            };
+                        };
+  
+                        
+                    };
+                                    
+                    // when the mouse be released => stop capture it's coordinates
+                    myCanvas.onmouseup = () => { myCanvas.onmousemove = null; };
+                
+                    
+                };
+                
+                // Call the draw() function
+                draw();
+            }
+        
+        </script>
+        
+    </head>   
+    
+    <body onload="canvasApp()">
+        
+        <h2>Intersect Rectangles</h2>
+        <p>Tarefa 2 Computação Gráfica<p>
+        <p>Aluno: Ricardo Kaê - DRE 116 039 521<p>
+        <div id="demo">
+        
+            <div id="rect_rect_canvas_container">
+                <canvas id="rect_rect" width="500" height="500"> </canvas>
+               
+                <table align="center">
+                    <tr>
+                        <th colspan="2">Rectangle 1</th>
+                        <th colspan="2">Rectangle 2</th>
+                        
+                    </tr>
+                    <tr>
+                        <th>x (center)</th>
+                        <th>y (center)</th>
+                        <th>x (center)</th>
+                        <th>y (center)</th>
+                    </tr>
+                    <tr>
+                        <td id="logx_rec1" align="center"></td>
+                        <td id="logy_rec1" align="center"></td>
+                        <td id="logx_rec2" align="center">2</td>
+                        <td id="logy_rec2" align="center">2</td>
+                    </tr>
+                
+                    <tr>
+                        <th>width</th>
+                        <th>height</th>
+                        <th>width</th>
+                        <th>height</th>
+                    </tr>
+                    <tr>
+                        <td id="logw_rec1" align="center"></td>
+                        <td id="logh_rec1" align="center"></td>
+                        <td id="logw_rec2" align="center"></td>
+                        <td id="logh_rec2" align="center"></td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+       
+        
+    </body>
+    
+    
+</html>
